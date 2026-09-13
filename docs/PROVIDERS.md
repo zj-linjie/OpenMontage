@@ -65,6 +65,8 @@ ARK_API_KEY=                 # API key body only; do not include the "Bearer " p
 
 # VIDEO
 HEYGEN_API_KEY=              # HeyGen avatar video gateway
+AGNES_API_KEY=               # Agnes short-form video + presenter-presence motion
+AGNES_BASE_URL=              # Optional; default https://apihub.agnes-ai.com/v1
 RUNWAY_API_KEY=              # Runway native + Seedance 2.5, Gemini Omni, MiniMax H3
 SUNO_API_KEY=                # Suno music generation
 
@@ -980,6 +982,35 @@ Gen-3 Alpha Turbo and Gen-4 Aleph were removed from the Runway API on
 
 ---
 
+### Agnes — Short-Form Video and Presenter Presence
+
+> **Short model-generated motion plates.** Agnes supports text-to-video and
+> first-frame image-to-video clips. In OpenMontage, the dedicated avatar adapter
+> is intentionally classified as `generated_presence`: it creates natural
+> presenter motion but does not accept driving audio and does not promise lip
+> synchronization.
+
+**Tools unlocked:** `agnes_video`, `agnes_avatar`
+
+**Env var:** `AGNES_API_KEY`
+
+**Optional override:** `AGNES_BASE_URL` (defaults to `https://apihub.agnes-ai.com/v1`)
+
+Supported model variants are `agnes-video-2.5-flash`, `agnes-video-2.5`, and
+legacy `agnes-video-v2.0`. The OpenMontage adapter limits requests to 4–12
+seconds and requires an explicit project output path.
+
+For presenter footage, `agnes_avatar` adds a strict prompt instruction forbidding
+subtitles, captions, words, letters, logos, watermarks, UI elements, signs,
+labels, and graphic overlays. Generated text can still occur, so visual review
+remains mandatory.
+
+Agnes account usage is subscription/quota-backed. The adapter currently reports
+zero incremental USD because no reliable per-clip USD price is available; this
+must not be presented to users as an unlimited free provider.
+
+---
+
 ### HeyGen — Avatar Video Gateway
 
 > **Multi-model video gateway.** Access VEO, Sora, Runway, Kling, and Seedance through a single API.
@@ -1428,6 +1459,7 @@ These tools require only FFmpeg or Python packages — no GPU, no API key.
 | **xAI** | `XAI_API_KEY` | `grok_image`, `grok_video` | Paid only |
 | **Runway** | `RUNWAY_API_KEY` | `runway_video` | Free trial + paid |
 | **Higgsfield** | `HIGGSFIELD_API_KEY` + `HIGGSFIELD_API_SECRET` | `higgsfield_video` | Subscription ($15-84/mo) |
+| **Agnes** | `AGNES_API_KEY` | `agnes_video`, `agnes_avatar` | Subscription/quota-backed |
 | **HeyGen** | `HEYGEN_API_KEY` | `heygen_video` | Pay-as-you-go |
 | **Suno** | `SUNO_API_KEY` | `suno_music` | Pay-as-you-go |
 | **Tencent Hunyuan** | `TENCENT_TOKENHUB_API_KEY` | `hunyuan_cloud_video` | Pay-as-you-go (~$0.25–0.83/gen) |
@@ -1445,13 +1477,13 @@ How many providers cover each capability:
 | Capability | Cloud Providers | Local Providers | Free Options |
 |-----------|----------------|-----------------|--------------|
 | **Image Generation** | FLUX, Kling Official, Grok, Google Imagen, GPT Image 2, Recraft | Local Diffusion | Pexels, Pixabay (stock) |
-| **Video Generation** | Grok, Kling Official, fal.ai, Seedance via Volcengine Ark, Runway, Veo, Gemini Omni, Higgsfield, MiniMax, HeyGen, Tencent Hunyuan, ComfyUI Partner Nodes | WAN, Hunyuan, CogVideo, LTX, ComfyUI WAN, ComfyUI MiniMax H3 | Pexels, Pixabay (stock) |
+| **Video Generation** | Grok, Kling Official, fal.ai, Seedance via Volcengine Ark, Runway, Veo, Gemini Omni, Higgsfield, Agnes, MiniMax, HeyGen, Tencent Hunyuan, ComfyUI Partner Nodes | WAN, Hunyuan, CogVideo, LTX, ComfyUI WAN, ComfyUI MiniMax H3 | Pexels, Pixabay (stock) |
 | **Text-to-Speech** | Azure AI Speech, ElevenLabs, fish.audio, Google TTS, Kling Official, OpenAI | Piper | Piper, Google free tier, ElevenLabs free tier, Azure free tier, fish.audio s2.1-pro-free |
 | **Music Generation** | ElevenLabs, Suno, Google Lyria | — | ElevenLabs free tier |
 | **Post-Production** | — | FFmpeg (compose, stitch, trim, mix, enhance, grade) | All free |
 | **Analysis** | — | WhisperX, Scene Detect, Frame Sampler, CLIP/BLIP-2 | All free |
 | **Enhancement** | — | Upscale, BG Remove, Face Enhance, Face Restore | All free |
-| **Avatar** | Kling Official | SadTalker, Wav2Lip | Local tools are free |
+| **Avatar / Presenter** | Kling Official; Agnes (`generated_presence`, no lip sync) | SadTalker, Wav2Lip | Local tools are free |
 
 ---
 

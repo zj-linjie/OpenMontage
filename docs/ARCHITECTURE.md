@@ -155,7 +155,8 @@ Selectors route based on: user preference when explicitly set, then scored ranki
 
 **Audio (9):** elevenlabs_tts, google_tts, openai_tts, piper_tts, azure_tts, tts_selector, music_gen, audio_mixer, audio_enhance
 
-**Avatar (2):** talking_head (SadTalker/MuseTalk), lip_sync (Wav2Lip)
+**Avatar / presenter:** talking_head (SadTalker/MuseTalk), lip_sync (Wav2Lip),
+kling_avatar, kling_lip_sync, agnes_avatar (generated presence; no speech sync)
 
 **Enhancement (5):** upscale (Real-ESRGAN), bg_remove (rembg/U2Net), face_enhance, face_restore (CodeFormer/GFPGAN), color_grade (FFmpeg LUTs)
 
@@ -163,7 +164,10 @@ Selectors route based on: user preference when explicitly set, then scored ranki
 
 **Subtitle (1):** subtitle_gen
 
-**Video (18):** grok_video, heygen_video, higgsfield_video, veo_video, kling_video, runway_video, minimax_video, wan_video, hunyuan_video, cogvideo_video, ltx_video_local, ltx_video_modal, pexels_video, pixabay_video, video_selector, video_compose (FFmpeg), video_stitch, video_trimmer
+**Video:** grok_video, heygen_video, higgsfield_video, agnes_video, veo_video,
+kling_video, runway_video, minimax_video, wan_video, hunyuan_video,
+cogvideo_video, ltx_video_local, ltx_video_modal, pexels_video, pixabay_video,
+video_selector, video_compose (FFmpeg), video_stitch, video_trimmer
 
 ---
 
