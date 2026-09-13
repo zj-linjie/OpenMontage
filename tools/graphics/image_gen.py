@@ -121,7 +121,7 @@ class ImageGen(BaseTool):
     def estimate_cost(self, inputs: dict[str, Any]) -> float:
         provider = inputs.get("provider") or self._detect_provider()
         if provider == "openai":
-            return 0.053  # gpt-image-2 medium at 1024x1024 (call uses auto quality)
+            return 0.053  # gpt-image medium at 1024x1024 (call uses auto quality)
         if provider == "flux":
             return 0.03
         return 0.0  # local
@@ -159,7 +159,7 @@ class ImageGen(BaseTool):
         client = OpenAI()
         prompt = inputs["prompt"]
         size = f"{inputs.get('width', 1024)}x{inputs.get('height', 1024)}"
-        model = inputs.get("model", "gpt-image-2")
+        model = inputs.get("model", "gpt-image-2.5")
 
         # GPT image models don't accept response_format; they always return b64
         response = client.images.generate(

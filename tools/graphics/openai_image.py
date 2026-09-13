@@ -1,4 +1,4 @@
-"""OpenAI GPT Image generation (gpt-image-2)."""
+"""OpenAI GPT Image generation (gpt-image-2.5, legacy gpt-image-2)."""
 
 from __future__ import annotations
 
@@ -60,8 +60,8 @@ class OpenAIImage(BaseTool):
             "prompt": {"type": "string"},
             "model": {
                 "type": "string",
-                "enum": ["gpt-image-2"],
-                "default": "gpt-image-2",
+                "enum": ["gpt-image-2.5", "gpt-image-2"],
+                "default": "gpt-image-2.5",
             },
             "size": {
                 "type": "string",
@@ -116,8 +116,10 @@ class OpenAIImage(BaseTool):
         return ToolStatus.UNAVAILABLE
 
     def estimate_cost(self, inputs: dict[str, Any]) -> float:
-        # gpt-image-2 per-image pricing at 1024x1024 (non-square sizes run
-        # slightly cheaper): https://developers.openai.com/api/docs/guides/image-generation
+        # Per-image pricing at 1024x1024 (non-square sizes run slightly
+        # cheaper), from the gpt-image-2 rate card; kept as the estimate for
+        # gpt-image-2.5 until its own pricing is published.
+        # https://developers.openai.com/api/docs/guides/image-generation
         quality = inputs.get("quality", "high")
         n = inputs.get("n", 1)
         cost_map = {"low": 0.006, "medium": 0.053, "high": 0.211, "auto": 0.053}
@@ -134,7 +136,7 @@ class OpenAIImage(BaseTool):
 
         start = time.time()
         client = OpenAI()
-        model = inputs.get("model", "gpt-image-2")
+        model = inputs.get("model", "gpt-image-2.5")
         prompt = inputs["prompt"]
         size = inputs.get("size", "1024x1024")
         n = inputs.get("n", 1)
