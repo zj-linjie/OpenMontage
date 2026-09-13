@@ -693,7 +693,11 @@ class VideoCompose(BaseTool):
                 # Use type-based selectors (0:v, 1:a) instead of index-based
                 # (0:v:0) because source videos may have audio as stream 0
                 # and video as stream 1 (e.g. Kling-generated clips).
-                cmd.extend(["-map", "0:v", "-map", "1:a", "-c:a", "aac", "-shortest"])
+                cmd.extend([
+                    "-map", "0:v", "-map", "1:a",
+                    "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
+                    "-shortest",
+                ])
             else:
                 cmd.extend(["-c:a", "copy"])
 
@@ -1615,6 +1619,12 @@ class VideoCompose(BaseTool):
         # Build asset lookup: id -> asset info
         asset_lookup = {a["id"]: a for a in asset_manifest.get("assets", [])}
 
+        # Project manifests intentionally store portable paths such as
+        # ``assets/video/clip.mp4``.  Resolve those relative to the project
+        # containing the requested render instead of the process cwd.  Keep
+        # cwd-relative paths working for callers that already use them.
+        project_root = Path(inputs.get("project_dir") or output_path.parent.parent)
+
         cuts = edit_decisions.get("cuts", [])
         if not cuts:
             return ToolResult(success=False, error="No cuts in edit_decisions")
@@ -1625,7 +1635,23 @@ class VideoCompose(BaseTool):
             source_id = cut.get("source", "")
             resolved_cut = dict(cut)
             if source_id in asset_lookup:
-                resolved_cut["source"] = asset_lookup[source_id]["path"]
+                source_path = Path(asset_lookup[source_id]["path"])
+                if not source_path.is_absolute():
+                    resolved_project_root = project_root.resolve()
+                    project_source = (resolved_project_root / source_path).resolve()
+                    try:
+                        project_source.relative_to(resolved_project_root)
+                    except ValueError:
+                        return ToolResult(
+                            success=False,
+                            error=(
+                                f"Asset path escapes project_dir: {source_path}. "
+                                "Project asset paths must stay under the project workspace."
+                            ),
+                        )
+                    if project_source.exists():
+                        source_path = project_source
+                resolved_cut["source"] = str(source_path)
             resolved_cuts.append(resolved_cut)
 
         # --- Pre-compose validation gate ---
