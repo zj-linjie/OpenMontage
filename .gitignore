@@ -55,6 +55,12 @@ pexels_video_*.mp4
 # Scratch/debug scripts
 scratch/
 
+# Local media-agent caches and root-level probe output. Canonical production
+# artifacts belong under projects/<project-id>/ instead.
+.v2c/
+.video_agent/
+/out/
+
 # Internal docs (strategy, handoffs, playbooks — not shipped)
 internal/
 
