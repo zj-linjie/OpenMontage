@@ -10,6 +10,10 @@ Turn the planned presenter scenes and produced assets into a coherent spokespers
 
 Assemble the core spokesperson performance before adding support layers. If the presenter cut is weak, extra graphics will not rescue it.
 
+For `generated_presence`, do not build a continuous talking-head track. Limit
+the motion plate to a non-speaking intro, outro, or reaction beat, and carry the
+spoken argument with narration-over-graphics, screen material, or B-roll.
+
 ### 2. Add Support Layers Sparingly
 
 Use overlays only where they help:
@@ -36,6 +40,7 @@ Recommended metadata keys:
 ### 5. Quality Gate
 
 - the presenter remains the anchor,
+- generated-presence shots do not imply synchronized speech,
 - overlays are timed cleanly,
 - scene transitions are calm and intentional,
 - the CTA lands once and clearly.

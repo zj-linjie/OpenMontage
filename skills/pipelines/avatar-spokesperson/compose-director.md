@@ -46,6 +46,11 @@ If the avatar path used lip sync or audio-driven talking head, check:
 - drift on long sections,
 - audio clarity.
 
+If `presenter_mode == "generated_presence"`, do not score the plate as a
+lip-synced performance. Instead verify that it is used only in a non-speaking
+beat, contains no generated subtitles/text/graphic overlays, and transitions
+cleanly into narration-led graphics.
+
 ### 4. Verify Every Output
 
 Record important findings in:
@@ -58,6 +63,7 @@ Record important findings in:
 
 - the output file is valid,
 - speech is clear,
+- the output keeps the selected presenter mode's delivery promise,
 - subtitles stay readable,
 - the presenter remains visually stable.
 

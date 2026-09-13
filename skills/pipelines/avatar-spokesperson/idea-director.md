@@ -20,15 +20,20 @@ Per AGENT_GUIDE.md → "Present Both Composition Runtimes (HARD RULE)": do NOT s
 
 ## Process
 
-### 1. Classify The Avatar Path
+### 1. Classify The Presenter Mode
 
-Record which production mode the project actually has:
+Record one `presenter_mode` and its delivery promise:
 
-- `platform_avatar`
-- `photo_talking_head`
-- `presenter_plate_lip_sync`
+- `audio_driven_avatar` — a photo or platform avatar driven by the approved audio,
+- `presenter_plate_lip_sync` — an existing video plate re-timed to approved audio,
+- `generated_presence` — a model-generated motion plate for non-speaking intros,
+  outros, or reaction beats; it does not promise lip sync,
+- `narration_over_graphics` — no presenter performance; narration leads the visuals.
 
-Also record whether the avatar already exists or still has to be created outside the current run.
+Also record `speech_sync_required` and whether the presenter source already
+exists. Route ordinary source-footage speakers to `talking-head`; route reusable
+rigged 2D/3D characters to `character-animation` instead of forcing them through
+this pipeline.
 
 ### 2. Define The Message Shape
 
@@ -56,7 +61,9 @@ The brief should explicitly state:
 
 Recommended metadata keys:
 
-- `avatar_path`
+- `presenter_mode`
+- `speech_sync_required`
+- `avatar_path` (legacy compatibility)
 - `avatar_exists`
 - `narration_source`
 - `target_audience`
@@ -67,14 +74,14 @@ Recommended metadata keys:
 
 ### 5. Quality Gate
 
-- the avatar path is explicit,
+- the presenter mode and speech-sync promise are explicit,
 - the message is narrow enough for a spokesperson format,
 - missing narration or avatar dependencies are visible early,
 - deliverables fit the actual source setup.
 
 ## Common Pitfalls
 
-- Treating a generic generated-video request as a deterministic avatar workflow.
+- Treating `generated_presence` as a deterministic or lip-synchronized avatar workflow.
 - Writing the CTA before confirming the avatar and narration path.
 - Planning multiple aspect ratios before the hero layout is proven.
 

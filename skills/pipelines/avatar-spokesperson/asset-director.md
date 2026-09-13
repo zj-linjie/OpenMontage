@@ -10,7 +10,7 @@ This stage prepares the actual spokesperson ingredients: narration, avatar or li
 |-------|----------|---------|
 | Schema | `schemas/artifacts/asset_manifest.schema.json` | Artifact validation |
 | Prior artifacts | `state.artifacts["scene_plan"]["scene_plan"]`, `state.artifacts["script"]["script"]`, `state.artifacts["idea"]["brief"]` | Presenter plan and narration needs |
-| Tools | `talking_head`, `lip_sync`, `tts_selector`, `subtitle_gen`, `image_selector`, `audio_enhance` — selectors auto-discover all available providers from the registry | Avatar, narration, and support asset options |
+| Tools | `talking_head`, `lip_sync`, `agnes_avatar`, `tts_selector`, `subtitle_gen`, `image_selector`, `audio_enhance` — selectors auto-discover all available providers from the registry | Presenter, narration, and support asset options |
 | Playbook | Active style playbook | Background, type, and subtitle rules |
 
 ## Process
@@ -21,16 +21,23 @@ Use one primary path and record it clearly:
 
 - `talking_head` from still image plus audio,
 - `lip_sync` from existing presenter plate plus new audio,
+- `agnes_avatar` for short `generated_presence` motion plates only,
 - externally supplied avatar render if created outside the current runtime.
 
 Do not hide a blocked avatar path. Record it.
+
+`agnes_avatar` is not audio-driven and must never satisfy a
+`speech_sync_required=true` brief. Its default prompt guard explicitly forbids
+subtitles, captions, text, logos, watermarks, UI, signs, labels, and graphic
+overlays. Use its output for non-speaking intros, outros, or reaction beats;
+put the substantive narration over graphics or other support visuals.
 
 ### 1b. Sample Preview (Prevents Wasted Spend)
 
 Before batch-generating assets, produce one sample of each expensive type and show the user:
 
 1. **TTS sample** (if generating narration): Generate one section. Confirm voice, pace, and persona before batching the rest.
-2. **Avatar sample** (if using `talking_head`): Generate a short test clip. Confirm the avatar quality is acceptable before committing to full generation.
+2. **Presenter sample** (if using `talking_head` or `agnes_avatar`): Generate a short test clip. Confirm the promised quality before committing to more generation. For `generated_presence`, explicitly confirm that no lip-sync claim is being made and reject model-generated text or overlays.
 
 If rejected, adjust parameters and retry (max 3 iterations). Do not batch until approved.
 
@@ -59,6 +66,8 @@ Prepare only what the scene plan actually needs:
 Recommended metadata keys:
 
 - `avatar_generation_path`
+- `presenter_mode`
+- `speech_sync_required`
 - `narration_assets`
 - `subtitle_assets`
 - `background_assets`
@@ -108,6 +117,7 @@ the AI model's training data — it may be wrong or outdated.
 
 - Building decorative assets before the narration path is solved.
 - Mixing multiple avatar-generation strategies in one simple spokesperson video.
+- Using a generated-presence plate as though its mouth motion were synchronized to narration.
 - Marking the stage complete when the core presenter asset is still hypothetical.
 - (No-avatar path) Generating filler visuals with no connection to the narration — every image must reinforce the spoken point.
 

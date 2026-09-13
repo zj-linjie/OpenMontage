@@ -4,7 +4,11 @@ This is the single source of truth for project architecture and conventions. All
 
 ## Identity
 
-OpenMontage is an open-source, AI-orchestrated video production platform.
+OpenMontage is an open-source, agent-native video production control layer. It
+turns a creative brief into auditable production decisions, media assets, and
+finished videos by orchestrating interchangeable models, local tools, source
+footage, and deterministic composition runtimes. Models are adapters, not the
+product boundary.
 
 ## Architecture: Instruction-Driven (Agent-First)
 

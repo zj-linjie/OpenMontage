@@ -52,12 +52,12 @@ stages:
     checkpoint_required: true
     human_approval_default: true
     review_focus:
-      - Avatar path and source reality are explicit
+      - Presenter mode, source reality, and speech-sync promise are explicit
       - CTA and audience fit the spokesperson format
       - Missing capabilities are surfaced before scripting
     success_criteria:
       - Schema-valid brief artifact
-      - Brief records avatar path, narration source, and output shape
+      - Brief records presenter_mode, speech_sync_required, narration source, and output shape
 
   - name: script
     skill: pipelines/avatar-spokesperson/script-director
@@ -110,6 +110,7 @@ stages:
     optional_tools:
       - talking_head
       - lip_sync
+      - agnes_avatar
       - tts_selector
       - subtitle_gen
       - image_selector
@@ -118,6 +119,7 @@ stages:
     tools_available:
       - talking_head
       - lip_sync
+      - agnes_avatar
       - tts_selector
       - subtitle_gen
       - image_selector
@@ -127,6 +129,7 @@ stages:
     human_approval_default: true
     review_focus:
       - Avatar generation path is explicit and honest (including no-avatar pivot if applicable)
+      - Generated-presence plates are never represented as synchronized speech
       - Narration, subtitle, and background assets are aligned
       - Blocked paths are recorded instead of hidden
     success_criteria:
@@ -147,6 +150,7 @@ stages:
     human_approval_default: false
     review_focus:
       - Presenter remains visually primary
+      - Generated-presence footage is limited to non-speaking intros, outros, or reaction beats
       - Graphics and captions reinforce rather than crowd
       - CTA timing lands clearly
     success_criteria:
@@ -177,7 +181,8 @@ stages:
     checkpoint_required: true
     human_approval_default: false
     review_focus:
-      - Lip sync or mouth timing is acceptable for the chosen path
+      - Lip sync is acceptable when the chosen presenter mode promises speech synchronization
+      - Generated-presence footage makes no spoken-mouth claim
       - Subtitle placement and framing remain clean
       - Audio is clear and presenter-focused
     success_criteria:
