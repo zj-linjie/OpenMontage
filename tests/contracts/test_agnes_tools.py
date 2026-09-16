@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 from pathlib import Path
 
 import pytest
@@ -94,6 +95,72 @@ def test_agnes_25_payloads_and_idempotency_fields():
 
     for field in ("image_url", "last_frame_url", "seed"):
         assert field in tool.idempotency_key_fields
+
+
+def test_agnes_25_local_image_paths_become_data_uris(tmp_path):
+    tool = AgnesVideo()
+    first_frame = tmp_path / "first.png"
+    first_frame.write_bytes(b"fake-png-bytes")
+    last_frame = tmp_path / "last.png"
+    last_frame.write_bytes(b"fake-last-bytes")
+
+    payload = tool._build_payload(
+        {
+            "prompt": "subtle head motion",
+            "operation": "image_to_video",
+            "image_url": str(first_frame),
+            "last_frame_url": str(last_frame),
+        }
+    )
+
+    assert payload["mode"] == "keyframe"
+    for key, raw in (("first_frame", b"fake-png-bytes"), ("last_frame", b"fake-last-bytes")):
+        assert payload[key].startswith("data:image/png;base64,")
+        encoded = payload[key].partition(",")[2]
+        assert base64.b64decode(encoded) == raw
+
+
+def test_agnes_urls_and_data_uris_pass_through():
+    payload = AgnesVideo()._build_payload(
+        {
+            "prompt": "subtle head motion",
+            "operation": "image_to_video",
+            "image_url": "http://example.com/start.png",
+            "last_frame_url": "data:image/jpeg;base64,AAAA",
+        }
+    )
+
+    assert payload["first_frame"] == "http://example.com/start.png"
+    assert payload["last_frame"] == "data:image/jpeg;base64,AAAA"
+
+
+def test_agnes_missing_local_image_path_raises(tmp_path):
+    with pytest.raises(ValueError, match="not found"):
+        AgnesVideo()._build_payload(
+            {
+                "prompt": "subtle head motion",
+                "operation": "image_to_video",
+                "image_url": str(tmp_path / "missing.png"),
+            }
+        )
+
+
+def test_legacy_model_local_image_path_becomes_data_uri(tmp_path):
+    image_path = tmp_path / "frame.jpg"
+    image_path.write_bytes(b"fake-jpeg-bytes")
+
+    payload = AgnesVideo()._build_payload(
+        {
+            "prompt": "legacy clip",
+            "model": "agnes-video-v2.0",
+            "operation": "image_to_video",
+            "image_url": str(image_path),
+            "duration": 6,
+        }
+    )
+
+    assert payload["image"].startswith("data:image/jpeg;base64,")
+    assert base64.b64decode(payload["image"].partition(",")[2]) == b"fake-jpeg-bytes"
 
 
 def test_legacy_model_rejects_last_frame():
