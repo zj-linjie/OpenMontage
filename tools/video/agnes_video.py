@@ -111,10 +111,39 @@ _LEGACY_RESOLUTIONS = {
     "3:4": (768, 1024),
 }
 
+_IMAGE_MIME_TYPES = {
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".webp": "image/webp",
+    ".gif": "image/gif",
+    ".bmp": "image/bmp",
+}
+
+
+def _resolve_image_reference(value: str) -> str:
+    """Resolve a frame reference to something the Agnes cloud can fetch.
+
+    HTTP(S) URLs and data URIs pass through unchanged; any other value is
+    treated as a local file path and inlined as a base64 data URI (Agnes
+    reads frames server-side, so local paths are unreachable).
+    """
+    if value.startswith(("http://", "https://", "data:")):
+        return value
+    path = Path(value).expanduser()
+    if not path.is_file():
+        raise ValueError(
+            f"Image reference not found: {value}. Provide a public HTTP(S) "
+            "URL, a base64 data URI, or an existing local file path."
+        )
+    mime = _IMAGE_MIME_TYPES.get(path.suffix.lower(), "image/png")
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{mime};base64,{encoded}"
+
 
 class AgnesVideo(BaseTool):
     name = "agnes_video"
-    version = "0.2.0"
+    version = "0.3.0"
     tier = ToolTier.GENERATE
     capability = "video_generation"
     provider = "agnes"
@@ -176,11 +205,19 @@ class AgnesVideo(BaseTool):
             },
             "image_url": {
                 "type": "string",
-                "description": "First-frame HTTP(S) URL or data URI for image_to_video",
+                "description": (
+                    "First-frame image for image_to_video: HTTP(S) URL, "
+                    "base64 data URI, or local file path (local paths are "
+                    "read and inlined as base64 data URIs)"
+                ),
             },
             "last_frame_url": {
                 "type": "string",
-                "description": "Optional last-frame image URL (agnes-video-2.5 keyframe mode)",
+                "description": (
+                    "Optional last-frame image (agnes-video-2.5 keyframe "
+                    "mode): HTTP(S) URL, base64 data URI, or local file "
+                    "path (local paths are read and inlined as data URIs)"
+                ),
             },
             "seed": {"type": "integer"},
             "output_path": {"type": "string"},
@@ -236,9 +273,11 @@ class AgnesVideo(BaseTool):
                 if not inputs.get("image_url"):
                     raise ValueError("image_to_video requires image_url")
                 payload["mode"] = "keyframe"
-                payload["first_frame"] = inputs["image_url"]
+                payload["first_frame"] = _resolve_image_reference(inputs["image_url"])
                 if inputs.get("last_frame_url"):
-                    payload["last_frame"] = inputs["last_frame_url"]
+                    payload["last_frame"] = _resolve_image_reference(
+                        inputs["last_frame_url"]
+                    )
             else:
                 payload["mode"] = "text"
                 payload["aspect_ratio"] = aspect_ratio
@@ -259,7 +298,7 @@ class AgnesVideo(BaseTool):
         if operation == "image_to_video":
             if not inputs.get("image_url"):
                 raise ValueError("image_to_video requires image_url")
-            payload["image"] = inputs["image_url"]
+            payload["image"] = _resolve_image_reference(inputs["image_url"])
         if inputs.get("seed") is not None:
             payload["seed"] = int(inputs["seed"])
         return payload
